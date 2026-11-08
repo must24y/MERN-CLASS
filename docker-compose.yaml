@@ -1,0 +1,33 @@
+services:
+  mongodb:
+    container_name: classroom-mongodb
+    image: mongo:8.0
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: classroom_dev_password
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+
+  server:
+    container_name: classroom-backend
+    image: node:24-alpine
+    working_dir: /app
+    volumes:
+      - ./server:/app
+    ports:
+      - "5000:5000"
+    depends_on:
+      - mongodb
+    environment:
+      MONGODB_URI: mongodb://admin:classroom_dev_password@mongodb:27017/classroom_db?authSource=admin
+    tty: true
+    command: sh -c "while sleep 1000; do :; done"
+
+volumes:
+  mongodb_data:
+
+
+#docker exec -it classroom-mongodb mongosh -u admin -p --authenticationDatabase admin
